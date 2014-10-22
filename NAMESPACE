@@ -1,0 +1,5 @@
+useDynLib(MiscFuns)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
+import(dplyr)
+import(stringr)
