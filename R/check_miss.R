@@ -6,27 +6,44 @@
 #' 
 #' @name check_miss
 #' @param data inputdataset.
-#' @param ... arguments pass to dplyr (in progress).
+#' @param ... arguments passing variabele names to dplyr.
 #' @return data.frame with number of NA (N_miss), number of 0 length characters (N_0_char), number of unique values (N_unique) and number of observations (N).
 #' @examples
 #' check_miss(mtcars)
 
-check_miss = function(data,...) {
-  
-  tab <- data %>% 
+check_miss <- function(data,...) {
+  p <- match.call(expand.dots=FALSE)
+  if (length(p) <= 2) {
+    tab <- data %>% 
+      summarise_each(funs(.na_sum,
+                          .nchar_sum,
+                          .n_unique,
+                          n())) %>%
+      matrix(ncol=4,
+             dimnames=list(
+               names(data),
+               c('N_miss','N_0_char','N_unique','N')
+             )) %>%
+      as.data.frame()
+  } else {
+    v_name <- data %>% 
+                select(...) %>%
+                names()
     
-    summarise_each(funs(.na_sum,
-                        .nchar_sum,
-                        .n_unique,
-                        n())) %>%
-    
-    matrix(ncol=4,
-           dimnames=list(
-             names(data),
-             c('N_miss','N_0_char','N_unique','N')
-           )) %>%
-       as.data.frame()
-  
+    tab <- data %>% 
+      select(...) %>%
+      summarise_each(funs(.na_sum,
+                          .nchar_sum,
+                          .n_unique,
+                          n())) %>%
+      
+      matrix(ncol=4,
+             dimnames=list(
+               v_name,
+               c('N_miss','N_0_char','N_unique','N')
+             )) %>%
+      as.data.frame()
+  }
   return(tab)
 }
 
